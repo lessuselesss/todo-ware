@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {
+        "DEFAULT_MINIMUM_TOKENS": "${DEFAULT_MINIMUM_TOKENS:-10000}",
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
+    "nushell": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-nu",
+        "--nu-config",
+        "${CLAUDE_PLUGIN_ROOT}/tools/kiro.nu"
+      ]
+    }
+  }
+}

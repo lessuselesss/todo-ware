@@ -1,0 +1,44 @@
+{
+  "name": "kiro-scaffold",
+  "version": "1.2.0",
+  "description": "Spec-driven project scaffolding using kiro.dev methodology with typix, nickel contracts, TDD workflows, Context7 documentation integration, Nushell-powered markdown parsing, and workflow enforcement hooks",
+  "author": {
+    "name": "Your Name",
+    "email": "[email protected]"
+  },
+  "homepage": "https://github.com/yourusername/kiro-scaffold",
+  "repository": "https://github.com/yourusername/kiro-scaffold",
+  "license": "MIT",
+  "keywords": [
+    "scaffolding",
+    "spec-driven",
+    "kiro",
+    "tdd",
+    "nickel",
+    "typix",
+    "nix",
+    "mcp",
+    "context7",
+    "hooks",
+    "validation",
+    "workflow"
+  ],
+  "components": {
+    "commands": 4,
+    "agents": 3,
+    "skills": 2,
+    "hooks": 4,
+    "mcpServers": 2,
+    "nushellUtilities": "20+"
+  },
+  "features": [
+    "Context7 MCP server for up-to-date documentation",
+    "Nushell MCP server (mcp-server-nu) for enhanced data processing",
+    "tools/kiro.nu library with 20+ Nushell utilities",
+    "Spec validation hook (enforces specifications before code)",
+    "TDD enforcement hook (requires tests before implementation)",
+    "Contract validation hook (type-checks nickel contracts)",
+    "Documentation sync reminder (keeps docs up-to-date)",
+    "Dual bash/Nushell hook implementations"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "kiro-plugins",
+  "version": "1.0.0",
+  "description": "Spec-driven development plugins for kiro.dev methodology",
+  "author": {
+    "name": "Your Name",
+    "email": "[email protected]",
+    "url": "https://github.com/yourusername"
+  },
+  "homepage": "https://github.com/yourusername/kiro-plugins-marketplace",
+  "repository": "https://github.com/yourusername/kiro-plugins-marketplace",
+  "plugins": {
+    "kiro-scaffold": {
+      "name": "Kiro Scaffold",
+      "description": "Complete scaffolding system for spec-driven projects with kiro.dev, typix, nickel contracts, and TDD workflows",
+      "version": "1.0.0",
+      "source": "github:yourusername/kiro-scaffold@v1.0.0",
+      "author": {
+        "name": "Your Name",
+        "email": "[email protected]"
+      },
+      "keywords": [
+        "scaffolding",
+        "spec-driven",
+        "kiro",
+        "tdd",
+        "nickel",
+        "typix",
+        "nix",
+        "testing"
+      ],
+      "categories": [
+        "Project Management",
+        "Testing",
+        "Documentation",
+        "Code Quality"
+      ],
+      "license": "MIT",
+      "readme": "https://github.com/yourusername/kiro-scaffold/blob/main/README.md"
+    }
+  }
+}
