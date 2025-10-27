@@ -1,4 +1,4 @@
-#import "@preview/fletcher:0.5.1" as fletcher: diagram, node, edge
+#import "@preview/fletcher:0.4.5" as fletcher: diagram, node, edge
 #import "@preview/lovelace:0.3.0": *
 
 #set page(paper: "a4", margin: 1.5cm)
@@ -190,10 +190,10 @@ User/agent fills specs and system auto-generates contracts.
     node((0, 9), [*Phase 2 Complete*], shape: fletcher.shapes.pill, fill: rgb("#2196f3")),
 
     // Auto-generation highlights
-    node((1.5, 3), [*AUTO*\ Generate\ .contracts/types/], shape: fletcher.shapes.hexagon, fill: rgb("#ffe082"), width: 18mm),
+    node((1.5, 3), [*AUTO* Generate .contracts/types/], shape: fletcher.shapes.hexagon, fill: rgb("#ffe082"), width: 18mm),
     edge((0, 3), (1.5, 3), "=>", stroke: (thickness: 2pt, paint: orange)),
 
-    node((1.5, 7), [*AUTO*\ Generate\ .contracts/validators/], shape: fletcher.shapes.hexagon, fill: rgb("#ffe082"), width: 18mm),
+    node((1.5, 7), [*AUTO* Generate .contracts/validators/], shape: fletcher.shapes.hexagon, fill: rgb("#ffe082"), width: 18mm),
     edge((0, 7), (1.5, 7), "=>", stroke: (thickness: 2pt, paint: orange)),
 
     // Validation checkpoints
@@ -309,10 +309,10 @@ TDD cycle - write tests, implement code, validate against contracts.
     node((1.5, 1), [Filled Specs], shape: rect, fill: rgb("#e3f2fd"), width: 18mm),
     edge((1.5, 0), (1.5, 1), "->"),
 
-    node((1.5, 2), [.contracts/types/\ *.ncl], shape: rect, fill: rgb("#ffe082"), width: 18mm),
+    node((1.5, 2), [types/\*.ncl], shape: rect, fill: rgb("#ffe082"), width: 18mm),
     edge((1.5, 0), (1.5, 2), "->"),
 
-    node((1.5, 3), [.contracts/\ validators/\ *.ncl], shape: rect, fill: rgb("#ffe082"), width: 18mm),
+    node((1.5, 3), [validators/\*.ncl], shape: rect, fill: rgb("#ffe082"), width: 18mm),
     edge((1.5, 0), (1.5, 3), "->"),
 
     // Phase 3 artifacts

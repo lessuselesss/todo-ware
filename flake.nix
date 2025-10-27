@@ -105,7 +105,7 @@
 
             # Documentation tools
             typst                     # Typst for visual documentation
-            typst-lsp                 # Typst language server
+            tinymist                  # Typst language server
 
             # Development tools
             git                       # Version control
