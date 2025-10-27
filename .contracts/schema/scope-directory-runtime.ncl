@@ -39,48 +39,46 @@ let scope = import "scope-directory.ncl" in
 
   # Main validation function
   # Takes RuntimeScopeState, returns ValidationResult
-  validate_scope_state = fun state => {
-    # Build list of errors
-    errors =
+  validate_scope_state = fun state =>
+    let error_list =
       (if !state.has_source_files then
         []
       else
         (if !state.has_claude_md then
           ["CLAUDE.md not found in directory"]
         else [])
-        ++
+        @
         (if !state.has_kiro_scope_dir then
           [".kiro-scope/ directory not found"]
         else [])
-        ++
+        @
         (if state.has_kiro_scope_dir then
           (if !state.required_files.scoped_tasks then
             [".kiro-scope/scoped-tasks.md not found"]
           else [])
-          ++
+          @
           (if !state.required_files.assertions then
             [".kiro-scope/assertions.md not found"]
           else [])
-          ++
+          @
           (if !state.required_files.context then
             [".kiro-scope/context.md not found"]
           else [])
-        else [])),
-
-    # Build list of warnings
-    warnings =
+        else []))
+    in
+    let warning_list =
       if std.record.has_field "optional_files" state then
         (if !state.optional_files.contracts_dir then
           [".kiro-scope/contracts/ directory recommended but not required"]
         else [])
-      else [],
-
-    # Return validation result
-    valid = std.array.length errors == 0,
-    path = state.path,
-    errors = errors,
-    warnings = warnings,
-  } | ValidationResult,
+      else []
+    in
+    {
+      valid = std.array.length error_list == 0,
+      path = state.path,
+      errors = error_list,
+      warnings = warning_list,
+    } | ValidationResult,
 
   # Format validation result as human-readable message
   format_validation_result = fun result =>
