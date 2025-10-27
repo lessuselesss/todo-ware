@@ -4,15 +4,53 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    typix.url = "github:loqusion/typix";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, typix }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;  # For Claude Code if needed
         };
+
+        # Typix setup for Typst document compilation
+        typixLib = typix.lib.${system};
+
+        # Define Typst documents to build
+        typstDocs = {
+          workflow-architecture = ./docs/workflow-architecture.typ;
+          workflow-sequence = ./docs/workflow-sequence.typ;
+          workflow-timeline = ./docs/workflow-timeline.typ;
+          contract-hierarchy = ./docs/contract-hierarchy.typ;
+        };
+
+        # Build all Typst documents
+        buildTypstDocs = pkgs.writeShellScriptBin "build-typst-docs" ''
+          echo "Building Typst documentation..."
+          mkdir -p docs/pdf
+
+          for doc in docs/*.typ; do
+            if [ -f "$doc" ]; then
+              echo "Compiling $doc..."
+              ${pkgs.typst}/bin/typst compile "$doc" "''${doc%.typ}.pdf"
+              mv "''${doc%.typ}.pdf" docs/pdf/ 2>/dev/null || true
+            fi
+          done
+
+          echo "✓ Documentation built in docs/pdf/"
+        '';
+
+        # Watch and rebuild Typst docs on change
+        watchTypstDocs = pkgs.writeShellScriptBin "watch-typst-docs" ''
+          echo "Watching Typst documents for changes..."
+          ${pkgs.typst}/bin/typst watch docs/workflow-architecture.typ docs/pdf/workflow-architecture.pdf &
+          ${pkgs.typst}/bin/typst watch docs/workflow-sequence.typ docs/pdf/workflow-sequence.pdf &
+          ${pkgs.typst}/bin/typst watch docs/workflow-timeline.typ docs/pdf/workflow-timeline.pdf &
+          ${pkgs.typst}/bin/typst watch docs/contract-hierarchy.typ docs/pdf/contract-hierarchy.pdf &
+          wait
+        '';
 
         # Claude Code installation script
         claudeCodeInstaller = pkgs.writeShellScriptBin "install-claude-code" ''
@@ -65,6 +103,10 @@
             nickel                    # Nickel language for contracts
             nushell                   # Nushell for validation scripts
 
+            # Documentation tools
+            typst                     # Typst for visual documentation
+            typst-lsp                 # Typst language server
+
             # Development tools
             git                       # Version control
             jq                        # JSON processing
@@ -81,6 +123,8 @@
             validateContracts
             testPlugin
             qualityCheck
+            buildTypstDocs
+            watchTypstDocs
           ];
 
           shellHook = ''
@@ -96,6 +140,8 @@
             echo "  • validate-contracts    - Type-check all Nickel contracts"
             echo "  • test-plugin           - Run plugin tests"
             echo "  • quality-check         - Generate quality report"
+            echo "  • build-typst-docs      - Compile all Typst documents to PDF"
+            echo "  • watch-typst-docs      - Watch and rebuild Typst docs on change"
             echo ""
             echo "Quick start:"
             echo "  1. install-claude-code"
@@ -128,9 +174,13 @@
         packages = {
           nickel = pkgs.nickel;
           nushell = pkgs.nushell;
+          typst = pkgs.typst;
 
           # Contract validator as a package
           validate-contracts = validateContracts;
+
+          # Typst documentation builder
+          build-typst-docs = buildTypstDocs;
         };
 
         # Apps that can be run with `nix run`
@@ -148,6 +198,16 @@
           quality-check = {
             type = "app";
             program = "${qualityCheck}/bin/quality-check";
+          };
+
+          build-typst-docs = {
+            type = "app";
+            program = "${buildTypstDocs}/bin/build-typst-docs";
+          };
+
+          watch-typst-docs = {
+            type = "app";
+            program = "${watchTypstDocs}/bin/watch-typst-docs";
           };
         };
 
