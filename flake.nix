@@ -112,7 +112,8 @@
             # Install MCP dependencies if not present
             if [ ! -d "node_modules" ]; then
               echo "Installing MCP server dependencies..."
-              npm install --no-save @upstash/context7-mcp mcp-server-nu
+              npm install --no-save @upstash/context7-mcp 2>/dev/null || true
+              echo "Note: mcp-server-nu is experimental and not required for core functionality"
             fi
 
             echo "Environment ready! 🎉"

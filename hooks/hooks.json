@@ -1,17 +1,22 @@
 {
+  "_comment": "Alternative hooks configuration using Nickel runtime validation",
+  "_usage": "Rename this to hooks.json to enable Nickel-based validation",
+
   "PreToolUse": [
     {
       "matcher": "Write|Edit",
       "hooks": [
         {
           "type": "command",
-          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-spec.sh",
-          "timeout": 5000
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-scope-nickel.sh",
+          "timeout": 5000,
+          "_description": "Validate scope structure using Nickel contracts (Bash version)"
         },
         {
           "type": "command",
           "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-tests.sh",
-          "timeout": 5000
+          "timeout": 5000,
+          "_description": "Validate tests exist before implementation"
         }
       ]
     },
@@ -21,11 +26,13 @@
         {
           "type": "command",
           "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-contracts.sh",
-          "timeout": 10000
+          "timeout": 10000,
+          "_description": "Type-check Nickel contracts before git operations"
         }
       ]
     }
   ],
+
   "PostToolUse": [
     {
       "matcher": "Write|Edit",
@@ -33,9 +40,26 @@
         {
           "type": "command",
           "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/check-docs-sync.sh",
-          "timeout": 3000
+          "timeout": 3000,
+          "_description": "Remind to update documentation"
         }
       ]
     }
-  ]
+  ],
+
+  "_alternatives": {
+    "_comment": "Alternative hook implementations you can use",
+    "nushell_scope_validator": {
+      "type": "command",
+      "command": "nu ${CLAUDE_PLUGIN_ROOT}/hooks/scripts-nu/validate-scope-nickel.nu",
+      "timeout": 5000,
+      "_description": "Nushell + Nickel scope validator (requires nu in PATH)"
+    },
+    "original_spec_validator": {
+      "type": "command",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-spec.sh",
+      "timeout": 5000,
+      "_description": "Original spec validator (pure bash, no Nickel)"
+    }
+  }
 }

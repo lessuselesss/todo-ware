@@ -5,7 +5,8 @@
       "WebSearch",
       "WebFetch(domain:www.nushell.sh)",
       "WebFetch(domain:github.com)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(nix develop:*)"
     ],
     "deny": [],
     "ask": []

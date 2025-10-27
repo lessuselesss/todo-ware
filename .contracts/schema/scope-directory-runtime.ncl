@@ -13,7 +13,7 @@ let scope = import "scope-directory.ncl" in
   # This represents the current filesystem state
   RuntimeScopeState = {
     path | String | doc "Path to the directory being validated",
-    has_source_files | Bool | default = true | doc "Directory contains source files",
+    has_source_files | doc "Directory contains source files" | Bool | default = true,
     has_claude_md | Bool | doc "CLAUDE.md exists in directory",
     has_kiro_scope_dir | Bool | doc ".kiro-scope/ directory exists",
 
@@ -24,8 +24,8 @@ let scope = import "scope-directory.ncl" in
     },
 
     optional_files | {
-      contracts_dir | Bool | default = false | doc ".kiro-scope/contracts/ exists",
-      readme | Bool | default = false | doc ".kiro-scope/README.md exists",
+      contracts_dir | doc ".kiro-scope/contracts/ exists" | Bool | default = false,
+      readme | doc ".kiro-scope/README.md exists" | Bool | default = false,
     } | optional,
   },
 
@@ -33,8 +33,8 @@ let scope = import "scope-directory.ncl" in
   ValidationResult = {
     valid | Bool | doc "Is the scope valid?",
     path | String | doc "Path that was validated",
-    errors | Array String | default = [] | doc "List of validation errors",
-    warnings | Array String | default = [] | doc "List of warnings (non-blocking)",
+    errors | doc "List of validation errors" | Array String | default = [],
+    warnings | doc "List of warnings (non-blocking)" | Array String | default = [],
   },
 
   # Main validation function
@@ -42,27 +42,27 @@ let scope = import "scope-directory.ncl" in
   validate_scope_state = fun state => {
     # Build list of errors
     errors =
-      (if not state.has_source_files then
+      (if !state.has_source_files then
         []
       else
-        (if not state.has_claude_md then
+        (if !state.has_claude_md then
           ["CLAUDE.md not found in directory"]
         else [])
         ++
-        (if not state.has_kiro_scope_dir then
+        (if !state.has_kiro_scope_dir then
           [".kiro-scope/ directory not found"]
         else [])
         ++
         (if state.has_kiro_scope_dir then
-          (if not state.required_files.scoped_tasks then
+          (if !state.required_files.scoped_tasks then
             [".kiro-scope/scoped-tasks.md not found"]
           else [])
           ++
-          (if not state.required_files.assertions then
+          (if !state.required_files.assertions then
             [".kiro-scope/assertions.md not found"]
           else [])
           ++
-          (if not state.required_files.context then
+          (if !state.required_files.context then
             [".kiro-scope/context.md not found"]
           else [])
         else [])),
@@ -70,7 +70,7 @@ let scope = import "scope-directory.ncl" in
     # Build list of warnings
     warnings =
       if std.record.has_field "optional_files" state then
-        (if not state.optional_files.contracts_dir then
+        (if !state.optional_files.contracts_dir then
           [".kiro-scope/contracts/ directory recommended but not required"]
         else [])
       else [],

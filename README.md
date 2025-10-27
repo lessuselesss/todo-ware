@@ -465,7 +465,7 @@ export DEFAULT_MINIMUM_TOKENS=15000
 
 ## Workflow Hooks
 
-Kiro includes automated workflow enforcement hooks that ensure consistent, high-quality outputs. See **[docs/HOOKS.md](docs/HOOKS.md)** for detailed documentation.
+Kiro includes automated workflow enforcement hooks that ensure consistent, high-quality outputs. Hooks can use **Nickel runtime validation** for type-safe enforcement. See **[docs/HOOKS.md](docs/HOOKS.md)** and **[docs/NICKEL-RUNTIME.md](docs/NICKEL-RUNTIME.md)** for detailed documentation.
 
 ### Quick Overview
 
@@ -473,6 +473,11 @@ Kiro includes automated workflow enforcement hooks that ensure consistent, high-
 - Ensures `.kiro/spec/` files exist before code changes
 - Validates requirements.md, design.md, tasks.md are complete
 - Run `/kiro-spec` to resolve
+
+**Scope Structure Validation** (Blocking - Optional Nickel-based)
+- Validates CLAUDE.md + .kiro-scope/ structural invariant
+- Uses Nickel contracts for type-safe validation at runtime
+- See [docs/NICKEL-RUNTIME.md](docs/NICKEL-RUNTIME.md)
 
 **TDD Enforcement** (Blocking)
 - Requires test files before implementation
