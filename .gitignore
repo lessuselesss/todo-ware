@@ -1,0 +1,25 @@
+# Nix
+.direnv/
+.envrc.cache
+result
+result-*
+
+# Node / MCP servers
+node_modules/
+package-lock.json
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
