@@ -1,4 +1,4 @@
-#import "@preview/fletcher:0.4.5" as fletcher: diagram, node, edge
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/lovelace:0.3.0": *
 
 #set page(paper: "a4", margin: 1.5cm)
