@@ -424,6 +424,262 @@ export def generate-todo-list [] {
 }
 
 # ============================================================================
+# NICKEL CONTRACT VALIDATION FUNCTIONS
+# ============================================================================
+
+# Validate assertion ID format using nickel contract
+export def validate-assertion-id [id: string] {
+  try {
+    # Use nickel to validate the ID pattern
+    let contract = ".contracts/validation/assertion-ids.ncl"
+
+    if not ($contract | path exists) {
+      return {valid: false, reason: "contract file not found"}
+    }
+
+    # Check pattern manually (nickel validation would require eval)
+    let pattern = '^[A-Z]+-[0-9]{3}--A[0-9]+$'
+    let matches = ($id | str contains --regex $pattern)
+
+    if $matches {
+      {valid: true, id: $id}
+    } else {
+      {valid: false, reason: "does not match TASK-###--A# pattern", id: $id}
+    }
+  } catch {
+    {valid: false, reason: "validation error", id: $id}
+  }
+}
+
+# Parse assertion ID into components (task + assertion number)
+export def parse-assertion-id [id: string] {
+  let parts = ($id | split row "--")
+
+  if ($parts | length) != 2 {
+    return null
+  }
+
+  {
+    task: ($parts | get 0),
+    assertion: ($parts | get 1),
+    full: $id
+  }
+}
+
+# Validate task ID format
+export def validate-task-id [id: string] {
+  let pattern = '^[A-Z]+-[0-9]{3}$'
+  let matches = ($id | str contains --regex $pattern)
+
+  if $matches {
+    {valid: true, id: $id}
+  } else {
+    {valid: false, reason: "does not match MODULE-### pattern", id: $id}
+  }
+}
+
+# Extract task ID from assertion ID
+export def task-id-from-assertion [assertion_id: string] {
+  let parsed = (parse-assertion-id $assertion_id)
+
+  if $parsed == null {
+    null
+  } else {
+    $parsed.task
+  }
+}
+
+# Check if assertion ID matches a task ID
+export def assertion-matches-task [assertion_id: string, task_id: string] {
+  let parsed = (parse-assertion-id $assertion_id)
+
+  if $parsed == null {
+    false
+  } else {
+    $parsed.task == $task_id
+  }
+}
+
+# Validate scope directory structure according to contracts
+export def validate-scope-structure [path: string] {
+  let has_claude_md = ($"($path)/CLAUDE.md" | path exists)
+  let has_kiro_scope = ($"($path)/.kiro-scope" | path exists)
+
+  if not $has_claude_md {
+    return {
+      valid: false,
+      reason: "CLAUDE.md not found in parent directory",
+      path: $path
+    }
+  }
+
+  if not $has_kiro_scope {
+    return {
+      valid: false,
+      reason: ".kiro-scope/ directory not found",
+      path: $path
+    }
+  }
+
+  # Check required files in .kiro-scope/
+  let required_files = [
+    "scoped-tasks.md",
+    "assertions.md",
+    "context.md"
+  ]
+
+  let missing = ($required_files | where {|f|
+    not ($"($path)/.kiro-scope/($f)" | path exists)
+  })
+
+  if ($missing | length) > 0 {
+    return {
+      valid: false,
+      reason: "missing required files in .kiro-scope/",
+      missing_files: $missing,
+      path: $path
+    }
+  }
+
+  {
+    valid: true,
+    path: $path,
+    has_contracts: ($"($path)/.kiro-scope/contracts" | path exists)
+  }
+}
+
+# Find all scoped directories in project
+export def find-scoped-directories [] {
+  glob **/.kiro-scope
+  | each {|scope_dir|
+      let parent = ($scope_dir | path dirname)
+      validate-scope-structure $parent
+    }
+}
+
+# Validate assertions.md file structure
+export def validate-assertions-file [file: path] {
+  if not ($file | path exists) {
+    return {valid: false, reason: "file not found"}
+  }
+
+  # Parse frontmatter
+  let fm = (parse-frontmatter $file)
+
+  if $fm == null {
+    return {valid: false, reason: "missing or invalid frontmatter"}
+  }
+
+  # Check for required frontmatter fields
+  if not ("parent_task" in ($fm | columns)) {
+    return {valid: false, reason: "frontmatter missing 'parent_task' field"}
+  }
+
+  # Extract assertion IDs from content
+  let content = (open $file | lines | str join "\n")
+
+  # Look for assertion ID patterns (AUTH-001--A1, etc)
+  let assertion_pattern = '[A-Z]+-[0-9]{3}--A[0-9]+'
+
+  {
+    valid: true,
+    frontmatter: $fm,
+    file: $file
+  }
+}
+
+# Validate scoped-tasks.md file structure
+export def validate-scoped-tasks-file [file: path] {
+  if not ($file | path exists) {
+    return {valid: false, reason: "file not found"}
+  }
+
+  let fm = (parse-frontmatter $file)
+
+  if $fm == null {
+    return {valid: false, reason: "missing or invalid frontmatter"}
+  }
+
+  # Check required frontmatter fields
+  let required = ["decomposed_from", "parent_tasks", "module"]
+  let missing = ($required | where {|field| not ($field in ($fm | columns))})
+
+  if ($missing | length) > 0 {
+    return {
+      valid: false,
+      reason: "frontmatter missing required fields",
+      missing_fields: $missing
+    }
+  }
+
+  {
+    valid: true,
+    frontmatter: $fm,
+    file: $file
+  }
+}
+
+# Validate context.md file structure
+export def validate-context-file [file: path] {
+  if not ($file | path exists) {
+    return {valid: false, reason: "file not found"}
+  }
+
+  # Check for required sections
+  let required_sections = [
+    "Purpose",
+    "Position in Architecture",
+    "Dependencies",
+    "Dependents",
+    "Key Interfaces",
+    "Design Decisions",
+    "Testing Strategy"
+  ]
+
+  let sections = (get-markdown-sections $file --level 2)
+  let missing = ($required_sections | where {|req| not ($req in $sections)})
+
+  if ($missing | length) > 0 {
+    return {
+      valid: false,
+      reason: "missing required sections",
+      missing_sections: $missing
+    }
+  }
+
+  {
+    valid: true,
+    sections: $sections,
+    file: $file
+  }
+}
+
+# Validate entire scope directory
+export def validate-scope-full [path: string] {
+  let structure = (validate-scope-structure $path)
+
+  if not $structure.valid {
+    return $structure
+  }
+
+  # Validate each required file
+  let assertions = (validate-assertions-file $"($path)/.kiro-scope/assertions.md")
+  let tasks = (validate-scoped-tasks-file $"($path)/.kiro-scope/scoped-tasks.md")
+  let context = (validate-context-file $"($path)/.kiro-scope/context.md")
+
+  let all_valid = $assertions.valid and $tasks.valid and $context.valid
+
+  {
+    valid: $all_valid,
+    path: $path,
+    structure: $structure,
+    assertions: $assertions,
+    tasks: $tasks,
+    context: $context
+  }
+}
+
+# ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
 

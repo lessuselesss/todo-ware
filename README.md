@@ -227,37 +227,50 @@ Large projects decomposed into manageable scopes:
 
 ### Nickel Contracts
 
-Type definitions in `.contracts/` directory:
+The plugin includes **formal Nickel contracts** that define the kiro methodology:
+
+**Plugin-level contracts** (`.contracts/` in plugin repo):
+- Define what makes a valid kiro project structure
+- Validate assertion ID format: `TASK-###--A#` (double-dash!)
+- Enforce structural invariant: CLAUDE.md + .kiro-scope/
+- Type-check generated specifications
+
+**Project-level contracts** (`.contracts/` in generated projects):
+- Mirror source code structure
+- Define application types and interfaces
+- Runtime validation via typix integration
+
+Example plugin contract:
 
 ```nickel
-# .contracts/auth/user.ncl
+# .contracts/validation/assertion-ids.ncl
+{
+  AssertionId = String
+    | std.string.is_match "^[A-Z]+-[0-9]{3}--A[0-9]+$"
+    | doc "Format: TASK-###--A# with DOUBLE-DASH (e.g., AUTH-001--A3)",
+}
+```
+
+Example project contract:
+
+```nickel
+# my-project/.contracts/auth/user.ncl
 {
   User = {
     id: String,
     email: String,
-    created_at: Timestamp,
-    
-    | email
-      | std.string.is_match "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-      | doc "Must be valid email format",
-  },
-  
-  Credentials = {
-    email: String,
-    password: String,
-    
-    | password
-      | std.string.length >= 8
-      | doc "Password must be at least 8 characters",
+    | email | std.string.is_match "^[a-zA-Z0-9._%+-]+@.*$",
   },
 }
 ```
 
 Benefits:
-- Type safety without runtime overhead
-- Self-documenting code
-- Contract enforcement
-- Better AI code generation
+- **Methodology enforcement** - Automated validation of kiro structures
+- **Type safety** - Catch errors before runtime
+- **Self-documenting** - Contracts serve as formal specification
+- **Better AI assistance** - Claude knows exactly what's valid
+
+See [docs/CONTRACTS.md](docs/CONTRACTS.md) for complete reference.
 
 ### TDD Workflow (RED-to-GREEN)
 
